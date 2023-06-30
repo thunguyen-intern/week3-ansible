@@ -1,10 +1,4 @@
 ---
-- name:  Create "{{ odoo_group }}" group
-  become: yes
-  group:
-    name: "{{ odoo_group }}"
-    state: present
-
 - name: Create Odoo user
   become: yes
   user:

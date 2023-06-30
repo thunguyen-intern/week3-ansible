@@ -1,9 +1,16 @@
 ---
 - include_tasks: postgres.yml
   when: ansible_os_family == "Debian"
- 
+
 - name: Postgres is running
   service:
     name: "{{ postgresql_service_name }}"
     enabled: true
     state: started
+
+- name: Configuration server
+  lineinfile:
+    path: "/etc/postgresql/13/main/postgresql.conf"
+    regexp: '#listen_address'
+    line: "listen_addresses = '192.168.56.11'"
+  notify: Reload Postgres

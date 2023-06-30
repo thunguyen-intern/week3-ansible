@@ -1,0 +1,89 @@
+---
+- name: Update apt
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: Install py dependencies
+  become: yes
+  apt:
+    pkg:
+    - build-essential
+    - git
+    - curl
+    - libssl-dev
+    - libbz2-dev
+    - libsqlite3-dev
+    - libreadline-dev
+    - zlib1g-dev
+    - wget
+    - llvm
+    - libncurses5-dev
+    - xz-utils
+    - tk-dev
+    - libxml2-dev
+    - libxmlsec1-dev
+    - libffi-dev
+    - cargo
+    state: present
+
+- name: Install pyenv
+  become: yes
+  become_user: "{{ odoo_user }}"
+  git:
+    repo: "{{ venv_url }}"
+    dest: "/home/{{ odoo_user }}/pyenv"
+    update: yes
+
+- name: Install pyenv-virtualenv plugin
+  become: yes
+  become_user: "{{ odoo_user }}"
+  git:
+    repo: "{{ venv_vir_url }}"
+    dest: "/home/{{ odoo_user }}/pyenv/plugins/pyenv-virtualenv"
+    update: yes
+
+- name: Install pyenv-update plugin
+  become: yes
+  become_user: "{{ odoo_user }}"
+  git:
+    repo: "{{ venv_upd_url }}"
+    dest: "/home/{{ odoo_user }}/pyenv/plugins/pyenv-update"
+    update: yes
+
+- name: Install .pyenvrc
+  become: yes
+  become_user: "{{ odoo_user }}"
+  template:
+    src: ".pyenvrc.j2"
+    dest: "/home/{{ odoo_user }}/pyenv/.pyenvrc"
+    mode: 0644
+
+- name: "Load pyenv env variables in .bashrc"
+  become: yes
+  become_user: "{{ odoo_user }}"
+  lineinfile: dest="/home/{{ odoo_user }}/.bashrc"
+              regexp="\.pyenvrc$"
+              line="source /home/{{ odoo_user }}/pyenv/.pyenvrc"
+              state=present
+              create=yes
+              mode="0644"
+
+- name: Update pyenv interpreter list
+  become: yes
+  become_user: "{{ odoo_user }}"
+  shell: . /home/{{ odoo_user }}/pyenv/.pyenvrc && pyenv update
+
+- name: "Install py interpreter {{ py_version }}"
+  become: yes
+  become_user: "{{ odoo_user }}"
+  shell: . /home/{{ odoo_user }}/pyenv/.pyenvrc && pyenv install {{ py_version }}
+  args:
+    creates: "/home/{{ odoo_user }}/pyenv/versions/{{ py_version }}/bin/python3"
+
+- name: "Create virtual environment {{ venv_name }}"
+  become: yes
+  become_user: "{{ odoo_user }}"
+  shell: . /home/{{ odoo_user }}/pyenv/.pyenvrc && pyenv virtualenv {{ py_version  }} {{ venv_name }}
+  args:
+    creates: "/home/{{ odoo_user }}/pyenv/versions/{{ venv_name }}/bin/python3"

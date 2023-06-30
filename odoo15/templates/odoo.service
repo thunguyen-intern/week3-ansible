@@ -1,6 +1,6 @@
 [Unit]
 Description=Odoo
-After=network.target
+After=network.target postgresql.target
 
 [Service]
 Type=simple

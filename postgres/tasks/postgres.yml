@@ -52,13 +52,13 @@
     
 - name: Configure authentication for Odoo
   postgresql_pg_hba:
-    dest: "/etc/postgresql/13/main/pg_hba.conf"
+    dest: /etc/postgresql/13/main/pg_hba.conf
     contype: host
     databases: all
     method: md5
+    create: true
     users: "{{ db_user }}"
-    source: 192.168.56.0/24
-    # port: 5432
+    source: 192.168.56.11/24
   become: yes
   become_user: postgres
-  # notify: Reload Postgres
+  notify: Reload Postgres
