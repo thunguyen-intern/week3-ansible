@@ -1,0 +1,28 @@
+---
+# tasks file for nginx
+
+- include_tasks: setup.yml
+
+- name: Install NGINX pakage
+  apt:
+    name: nginx
+    state: present
+
+- name: Start NGINX
+  service:
+    name: "{{ nginx_daemon }}"
+    state: started
+
+- name: Enable NGINX
+  systemd:
+    daemon-reload: yes
+  when: ansible_service_mgr == 'systemd'
+
+- name: Configure NGINX
+  template:
+    src: default.conf
+    dest: "/etc/nginx/conf.d/"
+    mode: 0774
+    # owner: odoo
+    # group: odoo
+  notify: Reload systemd

@@ -1,0 +1,25 @@
+---
+- name: Fix ownership of /opt/odoo directory
+  ansible.builtin.file:
+    path: "{{ odoo_path }}"
+    owner: odoo
+    group: odoo
+    recurse: yes
+  become: yes
+
+- name: Add exception for /opt/odoo directory in Git configuration
+  ansible.builtin.git_config:
+    scope: global
+    name: safe.directory
+    value: "{{ odoo_path }}"
+  become: yes
+
+- name: "Git clone git reference {{ odoo_ver }}"
+  become: yes
+  become_user: odoo
+  git:
+    repo: "{{ odoo_url }}"
+    dest: "{{ odoo_path }}"
+    version: "{{ odoo_ver }}"
+    depth: 1
+    force: true

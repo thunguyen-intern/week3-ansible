@@ -1,0 +1,128 @@
+---
+# tasks file for odoo15
+
+- include_tasks: create-user.yml
+
+- name: Install system packages
+  become: yes
+  apt:
+    update_cache: yes
+    pkg:
+    - build-essential
+    - python3-dev
+    - python3-setuptools
+    - libxml2
+    - libxml2-dev
+    - libxslt1-dev
+    - libssl-dev
+    - libldap2-dev
+    - libsasl2-dev
+    - git
+    - libmagic-dev
+    state: present
+
+- name: Install wkhtmltox package
+  become: yes
+  apt:
+    name: wkhtmltopdf
+    state: present
+
+    # - include_tasks: pyenv.yml
+
+- name: Ensure odoo group exists
+  ansible.builtin.group:
+    name: odoo
+    state: present
+  become: yes
+
+- name: Create Odoo dir
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: odoo
+    group: odoo
+    mode: 02775
+  with_items:
+  - "{{ odoo_path }}"
+  - "{{ odoo_config_path }}"
+
+- name: Create log dir
+  become: yes
+  file:
+    path: "{{ odoo_log_path }}"
+    owner: odoo
+    group: odoo
+    state: directory
+    mode: 0755
+
+- name: Create log file
+  become: yes
+  file:
+    path: "{{ odoo_log_path }}/odoo.log"
+    group: odoo
+    state: touch
+    mode: 02775
+
+- include_tasks: install.yml
+
+- name: Add python-magic to requirements
+  become: yes
+  become_user: odoo
+  lineinfile:
+    path: "{{ odoo_path }}/requirements.txt"
+    line: python-magic
+
+- name: Install odoo python requirements
+  become: yes
+  become_user: odoo
+  pip:
+    requirements: "{{ odoo_path }}/requirements.txt"
+    # virtualenv: "{{ venv_path }}"
+
+- name: Install nodejs packages
+  become: yes
+  apt:
+    pkg:
+    - nodejs
+    - npm
+    - node-less
+    state: latest
+
+- name: Install less-css using npm
+  become: yes
+  command:
+    cmd: "npm install --global less less-plugin-clean-css"
+
+- name: Add Odoo config
+  become: yes
+  template:
+    src: odoo.conf
+    dest: "{{ odoo_config_path }}/odoo.conf"
+    mode: 0774
+    owner: odoo
+    group: odoo
+
+    # - name: "Init Odoo database(s): {{ odoo_db }}"
+    # become: yes
+    # become_user: "{{ odoo_user }}"
+    # command:
+    # cmd: "{{ odoo_py_path }} /opt/odoo/odoo-bin -c /etc/odoo/odoo.conf -d odoo --init base --stop-after-init --logfile=/dev/stdout --log-level=warn"
+
+- name: Add Odoo service
+  become: yes
+  template:
+    src: "odoo.service"
+    dest: "/etc/systemd/system/odoo.service"
+    mode: 02775
+    owner: odoo
+    group: odoo
+
+- name: Enable service
+  become: yes
+  systemd:
+    name: "{{ odoo_daemon }}"
+    enabled: true
+    state: started
+    daemon_reload: true
+  notify: restart odoo

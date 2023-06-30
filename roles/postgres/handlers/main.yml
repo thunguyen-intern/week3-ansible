@@ -1,0 +1,7 @@
+---
+# handlers file for postgres
+
+- name: Reload Postgres
+  service:
+    name: "{{ postgresql_service_name }}"
+    state: reloaded
