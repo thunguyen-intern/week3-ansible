@@ -1,0 +1,33 @@
+---
+# sudo apt install nfs-common
+- name: Install NFS client
+  apt:
+    name: nfs-common
+    state: present
+    update_cache: yes
+
+ # Testing NFS share
+ # Create mount point: sudo mkdir -p /mnt/nfs_clientshare
+ # Mount the nfs share: sudo mount 10.0.2.15:/mnt/nfs_share /mnt/nfs_clientshare
+ #
+
+- name: Create mount point
+  file:
+    path: "/opt/odoo/.local/share/odoo"
+    state: directory
+    mode: 0777
+  become: yes
+
+- name: mount the NFS share
+  mount:
+    path: "/opt/odoo/.local/share/odoo"
+    src: "{{ nfs_ip }}:{{ odoo_mnt_path }}"
+    state: mounted
+    fstype: nfs
+  become: yes
+
+- name: share nfs
+  lineinfile:
+    path: "/etc/fstab"
+    line: "{{ nfs_ip }}:{{ odoo_mnt_path }}  /opt/odoo/.local/share/odoo  nfs  defaults  0  0"
+  become: yes

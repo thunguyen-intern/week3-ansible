@@ -1,18 +1,18 @@
 ---
-- name: Fix ownership of /opt/odoo directory
-  file:
-    path: "{{ odoo_path }}"
-    owner: odoo
-    group: odoo
-    recurse: yes
-  become: yes
+#- name: Fix ownership of /opt/odoo directory
+#  file:
+#    path: "{{ odoo_path }}"
+#    owner: odoo
+#    group: odoo
+#    recurse: yes
+#  become: yes
 
-- name: Add exception for /opt/odoo directory in Git configuration
-  git_config:
-    scope: global
-    name: safe.directory
-    value: "{{ odoo_path }}"
-  become: yes
+#- name: Add exception for /opt/odoo directory in Git configuration
+#  git_config:
+#    scope: global
+#    name: safe.directory
+#    value: "{{ odoo_path }}"
+#  become: yes
 
 - name: "Git clone git reference {{ odoo_ver }}"
   become: yes

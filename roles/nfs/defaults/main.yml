@@ -1,0 +1,8 @@
+---
+# defaults file for nfs
+#
+
+odoo_mnt_path: "/mnt/odoo"
+ip: 192.168.56.0/24
+
+export_path: "/etc/exports"

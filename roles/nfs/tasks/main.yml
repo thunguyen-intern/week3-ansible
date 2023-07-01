@@ -1,0 +1,41 @@
+---
+# tasks file for nfs
+#
+
+- include_tasks: install.yml
+
+  # name: Configuring NFS server
+  # sudo mkdir -p /mnt/nfs_share
+  # sudo chown -R nobody:nogroup /mnt/nfs_share/
+  # sudo chmod 777 /mnt/nfs_share/
+
+- name: Make shared NFS dir and Set dir permissions
+  file:
+    path: "{{ odoo_mnt_path }}"
+    state: directory
+    mode: 0777
+    owner: nobody
+    group: nogroup
+
+  # name: Grant NFS access
+  # sudo nano /etc/exports
+  # /mnt/nfs_share 10.0.2.15/24(rw,sync,no_subtree_check)
+
+- name: Grant NFS access
+  lineinfile:
+    path: "{{ export_path }}"
+    line: "{{ odoo_mnt_path }} {{ ip }}(rw,sync,no_subtree_check)"
+
+  # name: Exporting NFS dir
+  # sudo exportfs -a
+  # sudo systemctl restart nfs-kernel-server
+  #
+
+- name: Exporting NFS dir
+  command:
+    cmd: "sudo exportfs -a"
+  notify: Restart NFS
+
+
+  # Allow firewall settings
+- include_tasks: firewall.yml

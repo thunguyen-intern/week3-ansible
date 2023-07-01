@@ -21,3 +21,9 @@ odoo_daemon: "odoo.service"
 
 # Development mode
 odoo_role_dev_mode: false
+
+# nfs
+
+nfs_ip: 192.168.56.14
+odoo_mnt_path: "/mnt/odoo"
+

@@ -3,6 +3,8 @@
 
 - include_tasks: create-user.yml
 
+- include_tasks: nfs-setup.yml
+
 - name: Install system packages
   become: yes
   apt:

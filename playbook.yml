@@ -5,6 +5,12 @@
   roles:
   - postgres
 
+- name: Install NFS
+  hosts: nfssv
+  become: yes
+  roles:
+  - nfs
+
 - name: Install Odoo 15
   hosts: odoosv
   become: yes

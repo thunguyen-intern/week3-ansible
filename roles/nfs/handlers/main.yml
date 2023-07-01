@@ -1,0 +1,14 @@
+---
+# handlers file for nfs
+#
+
+- name: Restart NFS
+  service:
+    name: nfs-kernel-server
+    state: restarted
+    enabled: yes
+
+- name: enable firewall
+  service:
+    name: ufw
+    enabled: yes

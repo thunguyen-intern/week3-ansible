@@ -51,3 +51,6 @@ odoo2 ansible_host=192.168.56.13
 
 [nginxsv]
 nginx1 ansible_host=192.168.56.12
+
+[nfssv]
+nfs ansible_host=192.168.56.14

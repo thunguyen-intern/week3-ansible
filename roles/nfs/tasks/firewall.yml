@@ -1,0 +1,14 @@
+---
+- name: install ufw
+  package:
+    name: ufw
+    state: present
+
+- name: Grant Firewall access
+  ufw:
+    src: "{{ ip }}"
+    rule: allow
+    port: nfs
+    proto: tcp
+  notify: enable firewall
+
